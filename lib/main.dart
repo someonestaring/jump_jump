@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:control_pad/control_pad.dart';
+import 'dart:async';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,13 +40,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool _active = false;
   bool _moving = false;
+  String _charStatus = 'idle';
   int _score = 0;
 
-  void _incrementScore() {
-    setState(() {
-      _score++;
-    });
+  static void _counter(void Function() callback) {
+    Timer(const Duration(milliseconds: 95), callback);
   }
+
+  void _incrementScore() {
+    if (_moving && _score < 999999) {
+      setState(() {
+        _score++;
+      });
+    }
+  }
+
+  // double charJump() {
+  // TODO process of scooching character padding up and down blah blah --> Animation??
+  //   return
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -89,13 +103,18 @@ class _MyHomePageState extends State<MyHomePage> {
             // const Spacer(),
             Text(
               'UserNameScoreStuffWhyNot: $_score',
-              style: const TextStyle(color: Colors.white70, fontSize: 24),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             GestureDetector(
               onTap: () {
                 setState(() {
                   _active = !_active;
                   _moving = !_moving;
+                  _charStatus = _moving ? 'walk' : 'idle';
                 });
               },
               child: Icon(
@@ -109,9 +128,28 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     }
 
-    // Widget _character() {
-    //   return;
-    // }
+    Widget _character() {
+      String type = 'idle';
+      switch (_charStatus) {
+        case 'idle':
+          type = 'idle';
+          break;
+        case 'walk':
+          type = 'walk';
+          _counter(_incrementScore);
+          break;
+        case 'jump':
+          type = 'jump';
+      }
+      return Padding(
+          padding:
+              EdgeInsets.only(top: size.height * 0.5, left: size.width * 0.3),
+          child: Image.asset(
+            'assets/gifs/skeleton-$type.gif',
+            scale: 4,
+          ));
+    }
+
 // Widget _obstacles() {
 //   return
 // }
@@ -129,23 +167,39 @@ class _MyHomePageState extends State<MyHomePage> {
               child: JoystickView(
                 size: size.width * 0.15,
                 showArrows: false,
+                // onDirectionChanged: (x, y) {
+                //   setState(() {
+                //     switch (x.isNegative) {
+                //       case true:
+                //         _charStatus = 'idle';
+                //         break;
+                //       case false:
+                //         _charStatus = 'walk';
+                //         break;
+                //       default:
+                //     }
+                //   });
+                // },
               ),
             ),
             Padding(
               padding: EdgeInsets.only(right: size.width * 0.025),
               child: PadButtonsView(
                 padButtonPressedCallback: (button, tap) {
-                  switch (button) {
-                    case 0:
-                      return print('Button $button pressed you dumbie');
-                    case 1:
-                      return print('Button $button pressed you dumbie');
-                    case 2:
-                      return print('Button $button pressed you dumbie');
-                    case 3:
-                      return print('Button $button pressed you dumbie');
-                    default:
-                  }
+                  setState(() {
+                    switch (button) {
+                      case 0:
+                        return print('Button $button pressed you dumbie');
+                      case 1:
+                        _charStatus = 'jump';
+                        return print('Button $button pressed you dumbie');
+
+                      case 2:
+                        return print('Button $button pressed you dumbie');
+                      case 3:
+                        return print('Button $button pressed you dumbie');
+                    }
+                  });
                 },
                 size: size.width * 0.2,
               ),
@@ -161,7 +215,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             _background(),
             _userInfo(),
-            // _character(),
+            _character(),
             // _obstacles(),
             _joysticks(),
           ],

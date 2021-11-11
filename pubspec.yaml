@@ -62,6 +62,11 @@ flutter:
   assets:
     - assets/images/start_screen.png
     - assets/gifs/moving_screen.gif
+    - assets/gifs/skeleton-idle.gif
+    - assets/gifs/skeleton-walk.gif
+    - assets/gifs/skeleton-jump.gif
+    - assets/gifs/skeleton-guard.gif
+    - assets/gifs/skeleton-attack.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
